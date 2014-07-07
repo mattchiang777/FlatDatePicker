@@ -11,7 +11,7 @@
 
 @class SSFlatDatePickerCollectionView;
 
-#define kNumberOfCellPerRow 5.0f
+#define kNumberOfCellPerRow 3.0f
 
 #pragma mark - SSDatePickerLayoutAttriutes
 @interface SSDatePickerLayoutAttributes : UICollectionViewLayoutAttributes
@@ -104,27 +104,27 @@
   if (distance < 0 ) {
     if (distance >= -((self.itemSize.height*3)/2)) {
       graident.colors = @[
-                          (id)[[color colorWithAlphaComponent:0.3] CGColor],
                           (id)[[color colorWithAlphaComponent:0.5] CGColor],
-                          (id)[[color colorWithAlphaComponent:0.6] CGColor]
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor],
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor]
                           ];
     } else {
       graident.colors = @[
-                          (id)[[color colorWithAlphaComponent:0.6] CGColor],
-                          (id)[[color colorWithAlphaComponent:0.7] CGColor]
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor],
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor]
                           ];
     }
   } else {
     if (distance <= (self.itemSize.height*3/2)) {
       graident.colors = @[
-                          (id)[[color colorWithAlphaComponent:0.6] CGColor],
                           (id)[[color colorWithAlphaComponent:0.5] CGColor],
-                          (id)[[color colorWithAlphaComponent:0.3] CGColor]
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor],
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor]
                           ];
     } else {
       graident.colors = @[
-                          (id)[[color colorWithAlphaComponent:0.7] CGColor],
-                          (id)[[color colorWithAlphaComponent:0.6] CGColor]
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor],
+                          (id)[[color colorWithAlphaComponent:0.5] CGColor]
                           ];
     }
   }
@@ -239,7 +239,7 @@
     self = [super initWithFrame:frame];
     if (self) {
       // default setting
-      _font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:22];
+      _font = [UIFont fontWithName:@"HelveticaNeue-Light" size:40];
       _textColor = [UIColor whiteColor];
       _gradientColor = [UIColor blackColor];
     }
@@ -248,7 +248,7 @@
 
 - (void) awakeFromNib {
   // default setting
-  _font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:22];
+  _font = [UIFont fontWithName:@"HelveticaNeue-Light" size:40];
   _textColor = [UIColor whiteColor];
   _gradientColor = [UIColor blackColor];
 
@@ -343,10 +343,9 @@
   range.length = 200;
   self.yearRange = range;
   
-  self.layer.cornerRadius = 5.0f;
+  self.layer.cornerRadius = 10.0f;
   
   self.clipsToBounds = YES;
-  self.layer.cornerRadius = 5;
   
   if (initiate && !_initiateDate) {
     [self setDate:date];
@@ -377,13 +376,13 @@
     CAGradientLayer *gradient = [CAGradientLayer layer];
     gradient.colors = @[
                         //                        (id)[[UIColor colorWithWhite:0 alpha:0.8] CGColor],
-                        (id)[[self.gradientColor colorWithAlphaComponent:0.7] CGColor],
                         (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
-                        (id)[[self.gradientColor colorWithAlphaComponent:0.3] CGColor],
+                        (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
+                        (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
                         (id)[[self.gradientColor colorWithAlphaComponent:0] CGColor],
-                        (id)[[self.gradientColor colorWithAlphaComponent:0.3] CGColor],
                         (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
-                        (id)[[self.gradientColor colorWithAlphaComponent:0.7] CGColor],
+                        (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
+                        (id)[[self.gradientColor colorWithAlphaComponent:0.5] CGColor],
                         //                        (id)[[UIColor colorWithWhite:0 alpha:0.8] CGColor]
                         ];
     
