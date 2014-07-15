@@ -516,7 +516,7 @@
 -(void)snapIfNeeded:(UIScrollView *)scrollView
 {
     if (self.canStopScrolling && self.currentSpeed < 70.0f && self.currentSpeed > -70.0f) {
-        NSLog(@"Stopping with a speed of %f points per second", self.currentSpeed);
+        // NSLog(@"Stopping with a speed of %f points per second", self.currentSpeed);
         [self stopMoving:scrollView];
         float scrollDistancePastTabStart = fmodf(scrollView.contentOffset.y, (scrollView.frame.size.height/3));
         float scrollSnapY = scrollView.contentOffset.y - scrollDistancePastTabStart;
@@ -536,7 +536,7 @@
     }
     else
     {
-        NSLog(@"Did not stop with a speed of %f points per second", self.currentSpeed);
+        // NSLog(@"Did not stop with a speed of %f points per second", self.currentSpeed);
     }
 }
 
