@@ -76,12 +76,13 @@
   return YES;
 }
 
-- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
-  
-  NSInteger page = roundf(self.collectionView.contentOffset.y / self.itemSize.height);
-  return CGPointMake(proposedContentOffset.x, page * self.itemSize.height);
-  
-}
+//- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
+//
+//  NSInteger page = roundf(self.collectionView.contentOffset.y / self.itemSize.height);
+//  return CGPointMake(proposedContentOffset.x, page * self.itemSize.height);
+//
+//}
+
 
 - (void) applyAttributes:(SSDatePickerLayoutAttributes*)attributes {
   
@@ -210,7 +211,7 @@
   CGSize itemSize = [(SSFlatDatePickerFlowLayout*)self.collectionViewLayout itemSize];
   NSInteger row = round(self.contentOffset.y / itemSize.height);
   return [NSIndexPath indexPathForRow:row inSection:0];
-  
+
 }
 
 @end
@@ -227,6 +228,13 @@
 @property (nonatomic, strong) SSFlatDatePickerCollectionView *scrollerAPM;
 
 @property (nonatomic, assign) NSRange yearRange;
+
+@property (nonatomic) BOOL canStopScrolling;
+@property (nonatomic) float deltaOffset;
+@property (nonatomic) float prevOffset;
+@property (nonatomic) float currentSpeed;
+@property (nonatomic) NSTimeInterval prevTime;
+
 @end
 
 @implementation SSFlatDatePicker {
@@ -491,15 +499,78 @@
   
 }
 
-- (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+/* Smooth scrolling */
+- (void)refreshCurrentSpeed:(UIScrollView *)scrollView {
+    float currentOffset = scrollView.contentOffset.y;
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
 
-  if (!decelerate)
-    [self endScrollForScrollView:scrollView];
+    self.deltaOffset = (currentOffset - self.prevOffset);
+    float deltaTime = (currentTime - self.prevTime);
+    self.currentSpeed = self.deltaOffset/deltaTime;
+    self.prevOffset = currentOffset;
+    self.prevTime = currentTime;
 
+    // NSLog(@"deltaOffset is now %f, deltaTime is now %f and speed is %f",deltaOffset,deltaTime,currentSpeed);
+}
+
+-(void)snapIfNeeded:(UIScrollView *)scrollView
+{
+    if (self.canStopScrolling && self.currentSpeed < 70.0f && self.currentSpeed > -70.0f) {
+        NSLog(@"Stopping with a speed of %f points per second", self.currentSpeed);
+        [self stopMoving:scrollView];
+        float scrollDistancePastTabStart = fmodf(scrollView.contentOffset.y, (scrollView.frame.size.height/3));
+        float scrollSnapY = scrollView.contentOffset.y - scrollDistancePastTabStart;
+        if(scrollDistancePastTabStart > scrollView.frame.size.height/6)
+        {
+            scrollSnapY += scrollView.frame.size.height/3;
+        }
+        float maxSnapY = scrollView.contentSize.height-scrollView.frame.size.height;
+        if(scrollSnapY>maxSnapY)
+        {
+            scrollSnapY = maxSnapY;
+        }
+        [UIView animateWithDuration:0.3
+                         animations:^{scrollView.contentOffset=CGPointMake(scrollView.contentOffset.x, scrollSnapY);}
+                         completion:^(BOOL finished){[self stopMoving:scrollView];}
+         ];
+    }
+    else
+    {
+        NSLog(@"Did not stop with a speed of %f points per second", self.currentSpeed);
+    }
+}
+
+-(void)stopMoving:(UIScrollView *)scrollView {
+    if(scrollView.dragging) {
+        [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, scrollView.contentOffset.y) animated:NO];
+    }
+    self.canStopScrolling = NO;
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    self.canStopScrolling = NO;
+    [self refreshCurrentSpeed:scrollView];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        self.canStopScrolling = YES;
+        //    NSLog(@"Did end dragging");
+        [self snapIfNeeded:scrollView];
+        [self endScrollForScrollView:scrollView];
+    }
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    [self refreshCurrentSpeed:scrollView];
+    [self snapIfNeeded:scrollView];
 }
 
 - (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-  
+    self.canStopScrolling = YES;
+//    NSLog(@"Did end decelerating");
+    [self snapIfNeeded:scrollView];
+
   [self endScrollForScrollView:scrollView];
 
 }
