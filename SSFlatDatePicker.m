@@ -474,18 +474,18 @@
   cell.textLabel.textColor = self.textColor;
 
   if (collectionView == self.scrollerYear) {
-    cell.textLabel.text = [NSString stringWithFormat:@"%ld", (self.yearRange.location + indexPath.row)];
+    cell.textLabel.text = [NSString stringWithFormat:@"%d", (self.yearRange.location + indexPath.row)];
   } else if (collectionView == self.scrollerMonth) {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.locale = [NSLocale currentLocale];
     
     cell.textLabel.text = [NSString stringWithFormat:@"%@", [formatter.shortMonthSymbols objectAtIndex:indexPath.row]];
   } else if (collectionView == self.scrollerDay) {
-    cell.textLabel.text = [NSString stringWithFormat:@"%ld", (indexPath.row +1)];
+    cell.textLabel.text = [NSString stringWithFormat:@"%d", (indexPath.row +1)];
   } else if (collectionView == self.scrollerHour) {
-    cell.textLabel.text = [NSString stringWithFormat:@"%02ld", indexPath.row + 1];
+    cell.textLabel.text = [NSString stringWithFormat:@"%02d", indexPath.row + 1];
   } else if (collectionView == self.scrollerMinute) {
-    cell.textLabel.text = [NSString stringWithFormat:@"%02ld", indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"%02d", indexPath.row];
   } else {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.locale = [NSLocale currentLocale];
@@ -515,7 +515,7 @@
 
 -(void)snapIfNeeded:(UIScrollView *)scrollView
 {
-    if (self.canStopScrolling && self.currentSpeed < 70.0f && self.currentSpeed > -70.0f) {
+    if (self.canStopScrolling && self.currentSpeed < 10000.0f && self.currentSpeed > -10000.0f) {
         // NSLog(@"Stopping with a speed of %f points per second", self.currentSpeed);
         [self stopMoving:scrollView];
         float scrollDistancePastTabStart = fmodf(scrollView.contentOffset.y, (scrollView.frame.size.height/3));
@@ -550,12 +550,12 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     self.canStopScrolling = NO;
     [self refreshCurrentSpeed:scrollView];
+    [self snapIfNeeded:scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         self.canStopScrolling = YES;
-        //    NSLog(@"Did end dragging");
         [self snapIfNeeded:scrollView];
         [self endScrollForScrollView:scrollView];
     }
@@ -568,9 +568,7 @@
 
 - (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.canStopScrolling = YES;
-//    NSLog(@"Did end decelerating");
     [self snapIfNeeded:scrollView];
-
   [self endScrollForScrollView:scrollView];
 
 }
