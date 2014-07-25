@@ -533,6 +533,27 @@
                          animations:^{scrollView.contentOffset=CGPointMake(scrollView.contentOffset.x, scrollSnapY);}
                          completion:^(BOOL finished){[self stopMoving:scrollView];}
          ];
+
+        NSInteger hour;
+        if (self.scrollerAPM.currentSelectedIndexPath.row == 0) {
+            if (self.scrollerHour.currentSelectedIndexPath.row == 11) {
+                hour = 0;
+            } else {
+                hour = self.scrollerHour.currentSelectedIndexPath.row + 1;
+            }
+        } else {
+            if (self.scrollerHour.currentSelectedIndexPath.row < 11) {
+                hour = self.scrollerHour.currentSelectedIndexPath.row + 13;
+            } else {
+                hour = 12;
+            }
+        }
+        NSInteger minute = self.scrollerMinute.currentSelectedIndexPath.row;
+        NSArray *hourAndMinute = @[[NSNumber numberWithInteger:hour],
+                                   [NSNumber numberWithInteger:minute]];
+        [[NSUserDefaults standardUserDefaults] setObject: hourAndMinute
+                                                  forKey:@"Reminder"];
+
     }
     else
     {
@@ -598,10 +619,22 @@
 - (void) setDate:(NSDate *)date {
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents *components = [gregorian components:(kCFCalendarUnitHour | kCFCalendarUnitMinute) fromDate:date];
-    NSDate *newDate = [gregorian dateFromComponents:components];
 
-  [self setDate:newDate animated:NO];
-
+    NSDate *newDate;
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"Reminder"]) {
+        [components setHour:22];
+        [components setMinute:0];
+        newDate = [gregorian dateFromComponents:components];
+        NSArray *hourAndMinute = @[@22, @0];
+        [[NSUserDefaults standardUserDefaults] setObject: hourAndMinute
+                                                  forKey:@"Reminder"];
+    } else {
+        NSArray *currentReminder = [[NSUserDefaults standardUserDefaults] objectForKey:@"Reminder"];
+        [components setHour:[((NSNumber *)currentReminder[0]) integerValue]];
+        [components setMinute:[((NSNumber *)currentReminder[1]) integerValue]];
+        newDate = [gregorian dateFromComponents:components];
+    }
+    [self setDate:newDate animated:NO];
 }
 
 - (void) setDate:(NSDate *)date animated:(BOOL)animated {
