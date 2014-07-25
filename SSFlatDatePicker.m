@@ -596,8 +596,14 @@
 
 
 - (void) setDate:(NSDate *)date {
-  
-  [self setDate:date animated:NO];
+    // Set to 10:00 pm
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDateComponents *components = [gregorian components:(kCFCalendarUnitHour | kCFCalendarUnitMinute) fromDate:date];
+    [components setHour:22];
+    [components setMinute:0];
+    NSDate *newDate = [gregorian dateFromComponents:components];
+
+  [self setDate:newDate animated:NO];
 
 }
 
